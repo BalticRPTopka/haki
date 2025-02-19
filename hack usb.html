@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gra - Klikaj w kolejności</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1c1c1c;
+            color: #f0f0f0;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #f0f0f0;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #2e2e2e;
+            color: #ffffff;
+            transition: background-color 0.3s, transform 0.1s;
+            border-radius: 8px;
+        }
+        .cell:hover {
+            background-color: #444444;
+            transform: scale(1.1);
+        }
+        .disabled {
+            background-color: #555555;
+            pointer-events: none;
+        }
+        .progress-container {
+            width: 300px;
+            height: 20px;
+            background-color: #555555;
+            margin: 10px auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #00c853;
+            transition: width 1s linear;
+        }
+        button {
+            background-color: #4caf50;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 8px;
+            color: white;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #388e3c;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Klikaj liczby w kolejności od 1 do 25</h1>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="grid" id="gameBoard"></div>
+    <p id="message"></p>
+    <button onclick="restartGame()">Powtórz</button>
+    <script>
+        let numbers = Array.from({ length: 25 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        let nextNumber = 1;
+        let timeLeft = 25;
+        const board = document.getElementById("gameBoard");
+        const message = document.getElementById("message");
+        const progressBar = document.getElementById("progressBar");
+        let timer = setInterval(() => {
+            timeLeft--;
+            progressBar.style.width = (timeLeft / 20) * 100 + "%";
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                message.textContent = "Czas minął! Przegrałeś!";
+                document.querySelectorAll(".cell").forEach(cell => cell.classList.add("disabled"));
+            }
+        }, 1000);
+        
+        function restartGame() {
+            location.reload();
+        }
+        
+        numbers.forEach(num => {
+            let cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.textContent = num;
+            cell.addEventListener("click", function() {
+                if (parseInt(this.textContent) === nextNumber) {
+                    this.classList.add("disabled");
+                    nextNumber++;
+                    if (nextNumber > 25) {
+                        clearInterval(timer);
+                        message.textContent = "Gratulacje! Wygrałeś!";
+                    }
+                } else {
+                    clearInterval(timer);
+                    message.textContent = "Błędny wybór! Przegrałeś!";
+                    document.querySelectorAll(".cell").forEach(cell => cell.classList.add("disabled"));
+                }
+            });
+            board.appendChild(cell);
+        });
+    </script>
+</body>
+</html>

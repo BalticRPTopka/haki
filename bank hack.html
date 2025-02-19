@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Memory Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .card { font-size: 24px; font-weight: bold; padding: 20px; border: 2px solid black; display: inline-block; margin: 20px; }
+        .buttons { margin-top: 20px; }
+        button { padding: 10px 20px; font-size: 18px; margin: 5px; cursor: pointer; }
+        .seen { background-color: purple; color: white; }
+        .new { background-color: green; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Word Memory Game</h1>
+    <p>Memorize the words displayed</p>
+    <p id="timer">Time left: 25s</p>
+    <div class="card" id="wordCard">Press Start</div>
+    <div class="buttons">
+        <button class="seen" onclick="handleChoice(true)">Seen</button>
+        <button class="new" onclick="handleChoice(false)">New</button>
+    </div>
+    <p id="result"></p>
+    <button onclick="startGame()">Start Game</button>
+
+    <script>
+        let words = ["Gelatinous", "Apple", "Orange", "Banana", "Table", "Chair", "Window", "Door", "Ocean", "Mountain",
+                     "River", "Sky", "Cloud", "Sun", "Moon", "Star", "Galaxy", "Tree", "Flower", "Grass"];
+        let seenWords = new Set();
+        let wordSequence = [];
+        let currentWord = "";
+        let index = 0;
+        let gameOver = false;
+        let timeLeft = 25;
+        let timer;
+
+        function shuffleArray(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function startGame() {
+            seenWords.clear();
+            wordSequence = shuffleArray([...words, ...words]).slice(0, 20);
+            index = 0;
+            currentWord = wordSequence[index];
+            document.getElementById("wordCard").textContent = currentWord;
+            document.getElementById("result").textContent = "";
+            timeLeft = 25;
+            gameOver = false;
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").textContent = `Time left: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        function handleChoice(isSeen) {
+            if (gameOver) return;
+
+            if ((seenWords.has(currentWord) && !isSeen) || (!seenWords.has(currentWord) && isSeen)) {
+                endGame(false);
+                return;
+            }
+
+            seenWords.add(currentWord);
+            index++;
+            if (index < 20) {
+                currentWord = wordSequence[index];
+                document.getElementById("wordCard").textContent = currentWord;
+            } else {
+                endGame(true);
+            }
+        }
+
+        function endGame(won) {
+            gameOver = true;
+            clearInterval(timer);
+            document.getElementById("result").textContent = won ? "You Win!" : "Game Over!";
+        }
+    </script>
+</body>
+</html>
